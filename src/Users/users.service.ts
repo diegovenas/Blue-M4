@@ -9,11 +9,11 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  getAll(): Promise<User[]> {
+  findAll(): Promise<User[]> {
     return this.prisma.user.findMany();
   }
 
-  getById(id: string): Promise<User> {
+  findOne(id: string): Promise<User> {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
@@ -27,7 +27,7 @@ export class UsersService {
     return this.prisma.user.create({ data });
   }
 
-  delete(id: string) {
+  remove(id: string) {
     return this.prisma.user.delete({
       where: { id },
       select: { name: true, email: true },
