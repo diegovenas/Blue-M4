@@ -12,6 +12,8 @@ async function bootstrap() {
     .setTitle('Diegoflix')
     .setDescription('Series e filmes favoritas do Sr. Diego')
     .setVersion('1.0')
+    .addTag('Users')
+    .addTag('Products')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
