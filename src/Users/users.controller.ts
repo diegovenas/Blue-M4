@@ -22,16 +22,16 @@ export class UsersController {
   @ApiOperation({
     summary: 'Lista todos os usuarios',
   })
-  getAll(): Promise<User[]> {
-    return this.usersService.getAll();
+  findAll(): Promise<User[]> {
+    return this.usersService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({
     summary: 'Lista usuario por ID!',
   })
-  getById(@Param('id') id: string): Promise<User> {
-    return this.usersService.getById(id);
+  findOne(@Param('id') id: string): Promise<User> {
+    return this.usersService.findOne(id);
   }
 
   @Post()
@@ -46,8 +46,8 @@ export class UsersController {
   @ApiOperation({
     summary: 'Deletar um usuario!',
   })
-  delete(@Param('id') id: string) {
-    return this.usersService.delete(id);
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
   }
 
   @Patch(':id')
