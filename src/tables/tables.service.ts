@@ -3,29 +3,33 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
+import { Table } from '@prisma/client';
 import { PrismaService } from 'src/PRISMA/prisma.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './entities/product.entity';
+import { CreateTableDto } from './dto/create-table.dto';
+import { UpdateTableDto } from './dto/update-table.dto';
 
 @Injectable()
-export class ProductsService {
+export class TablesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(): Promise<Product[]> {
-    return this.prisma.product.findMany();
+  async create(dto: CreateTableDto): Promise<Table> {
+    return this.prisma.table
+      .create({ data: dto })
+      .catch(this.handleContrainsError);
   }
 
-  async verifyID(id: string): Promise<Product> {
-    const product: Product = await this.prisma.product.findUnique({
-      where: { id },
-    });
+  findAll(): Promise<Table[]> {
+    return this.prisma.table.findMany();
+  }
 
-    if (!product) {
+  async verifyID(id: string): Promise<Table> {
+    const table: Table = await this.prisma.table.findUnique({ where: { id } });
+
+    if (!table) {
       throw new NotFoundException(` O ID (...${id}...) não foi encontrado :( `);
     }
 
-    return product;
+    return table;
   }
 
   handleContrainsError(error: Error): never {
@@ -36,25 +40,24 @@ export class ProductsService {
     throw new UnprocessableEntityException(errorMessage);
   }
 
-  findOne(id: string): Promise<Product> {
+  findOne(id: string): Promise<Table> {
     return this.verifyID(id);
   }
 
-  create(dto: CreateProductDto): Promise<Product | void> {
-    return this.prisma.product
-      .create({ data: dto })
-      .catch(this.handleContrainsError);
-  }
-
-  async update(id: string, dto: UpdateProductDto): Promise<Product | void> {
+  async update(id: string, dto: UpdateTableDto): Promise<Table> {
     await this.verifyID(id);
-    return this.prisma.product
+
+    return this.prisma.table
       .update({ where: { id }, data: dto })
       .catch(this.handleContrainsError);
   }
 
   async remove(id: string) {
     await this.verifyID(id);
-    return this.prisma.product.delete({ where: { id } });
+
+    return this.prisma.table.delete({
+      where: { id },
+      select: { number: true },
+    });
   }
 }
