@@ -4,6 +4,9 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { handleContrainsError } from 'src/utils/handle-error-unique.util';
+import { FavoriteProductDto } from '../favorites/dto/favoritar.dto';
+import { Favorite } from 'src/favorites/entities/favorite-entitie';
+import { User } from 'src/Users/entities/users.entity';
 
 @Injectable()
 export class ProductsService {
@@ -45,5 +48,46 @@ export class ProductsService {
   async remove(id: string) {
     await this.verifyID(id);
     return this.prisma.product.delete({ where: { id } });
+  }
+
+  async favorite(dto: FavoriteProductDto): Promise<Favorite> {
+    const product: Product = await this.prisma.product.findUnique({
+      where: { name: dto.productName },
+    });
+
+    if (!product) {
+      throw new NotFoundException(
+        `Produto de nome " ${dto.productName}"  não encontrado.`,
+      );
+    }
+
+    const user: User = await this.prisma.user.findUnique({
+      where: { id: dto.userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        `Entrada de ID " ${dto.userId}"  não encontrad.`,
+      );
+    }
+    return this.prisma.favorite.create({ data: dto });
+  }
+
+  async unfavorite(id: string) {
+    await this.verifyID(id);
+
+    return this.prisma.favorite.delete({ where: { id } });
+  }
+
+  async findUsersLiked(id: string) {
+    const product: Product = await this.verifyID(id);
+
+    return this.prisma.favorite.findMany({
+      where: { productName: product.name },
+      select: {
+        productName: true,
+        user: { select: { id: true, name: true, email: true } },
+      },
+    });
   }
 }
